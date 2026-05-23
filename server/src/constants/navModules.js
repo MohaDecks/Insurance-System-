@@ -68,5 +68,14 @@ export function buildNavFromPages(pages, sectionDefs) {
     blocks.set(title, { title, items: blockItems });
   }
 
+  const defIds = new Set(defs.map((d) => d.id));
+  const orphans = pages.filter((p) => !defIds.has(p.section));
+  if (orphans.length) {
+    const title = "Other";
+    const links = orphans.map(toNavLink);
+    const prev = blocks.get(title)?.items || [];
+    blocks.set(title, { title, items: prev.concat(links) });
+  }
+
   return [...blocks.values()];
 }

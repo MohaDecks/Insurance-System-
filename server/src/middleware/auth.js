@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 import { Role } from "../models/Role.js";
-import { Permission } from "../models/Permission.js";
 import { HttpError } from "./errorHandler.js";
+import { resolvePermissionKeys } from "../utils/userPermissions.js";
 
 const DEFAULT_JWT_SECRET = "insurance-management-default-jwt-secret";
 
@@ -26,11 +26,8 @@ export async function authenticate(req, res, next) {
     if (!user || !user.isActive) {
       throw new HttpError(401, "Invalid or inactive user");
     }
-    const permKeys = new Set(
-      (user.role?.permissions || []).map((p) => p.key).filter(Boolean)
-    );
     req.user = user;
-    req.permissionKeys = permKeys;
+    req.permissionKeys = await resolvePermissionKeys(user);
     next();
   } catch (e) {
     if (e.name === "JsonWebTokenError" || e.name === "TokenExpiredError") {

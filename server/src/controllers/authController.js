@@ -2,10 +2,11 @@ import { User } from "../models/User.js";
 import { Role } from "../models/Role.js";
 import { HttpError } from "../middleware/errorHandler.js";
 import { signToken } from "../middleware/auth.js";
+import { resolvePermissionKeys } from "../utils/userPermissions.js";
 
-function userPayload(user) {
+function userPayload(user, permissionKeys) {
   const role = user.role;
-  const permissions = (role?.permissions || []).map((p) => p.key);
+  const permissions = permissionKeys ? [...permissionKeys] : (role?.permissions || []).map((p) => p.key);
   return {
     id: user._id,
     name: user.name,
@@ -34,8 +35,9 @@ export async function login(req, res, next) {
     if (!user.isActive) {
       throw new HttpError(403, "Account disabled");
     }
+    const permissionKeys = await resolvePermissionKeys(user);
     const token = signToken(user._id);
-    res.json({ success: true, token, user: userPayload(user) });
+    res.json({ success: true, token, user: userPayload(user, permissionKeys) });
   } catch (e) {
     next(e);
   }
@@ -43,7 +45,7 @@ export async function login(req, res, next) {
 
 export async function me(req, res, next) {
   try {
-    res.json({ success: true, user: userPayload(req.user) });
+    res.json({ success: true, user: userPayload(req.user, req.permissionKeys) });
   } catch (e) {
     next(e);
   }

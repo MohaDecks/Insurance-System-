@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import * as Icons from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
-import { filterNavItems, navItemOrDescendantActive, openGroupIdsForPath } from "../config/nav.js";
+import { navItemOrDescendantActive, openGroupIdsForPath } from "../config/nav.js";
 import { api } from "../api/client.js";
 import { Button } from "../components/Button.jsx";
 
@@ -83,7 +83,7 @@ function NavNode({ item, depth, openGroups, toggleGroup, pathname }) {
 }
 
 export function DashboardLayout() {
-  const { user, logout, permissionKeys } = useAuth();
+  const { user, logout, reload } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -95,11 +95,20 @@ export function DashboardLayout() {
       setNavSections([]);
       return;
     }
-    api
-      .get("/pages/nav")
-      .then(({ data }) => setNavSections(data.data || []))
-      .catch(() => setNavSections([]));
-  }, [user?.id]);
+    let cancelled = false;
+    (async () => {
+      try {
+        await reload();
+        const { data } = await api.get("/pages/nav");
+        if (!cancelled) setNavSections(data.data || []);
+      } catch {
+        if (!cancelled) setNavSections([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, reload]);
 
   useEffect(() => {
     setOpenGroups((prev) => {
@@ -126,8 +135,14 @@ export function DashboardLayout() {
           <div className="text-lg font-bold text-slate-900 dark:text-white">Management</div>
         </div>
         <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
+          {navSections.length === 0 ? (
+            <p className="px-2 text-xs text-slate-500">
+              Menu empty — check <code className="text-[10px]">registered_pages</code> and role permissions, then log
+              out and log in.
+            </p>
+          ) : null}
           {navSections.map((section) => {
-            const items = filterNavItems(section.items, permissionKeys);
+            const items = section.items || [];
             if (!items.length) return null;
             return (
               <div key={section.title}>

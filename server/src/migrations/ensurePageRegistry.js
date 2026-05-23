@@ -30,19 +30,22 @@ async function upsertPermissionsForPage(page) {
 
 async function syncAllPermissionsFromPages(pages) {
   for (const p of pages) await upsertPermissionsForPage(p);
-  const admin = await Role.findOne({ name: /^admin$/i });
-  if (!admin) return;
+  const adminRoles = await Role.find({ name: /admin/i });
+  if (!adminRoles.length) return;
   const all = await Permission.find({}).lean();
-  const have = new Set(admin.permissions.map((id) => String(id)));
-  for (const perm of all) {
-    if (!have.has(String(perm._id))) admin.permissions.push(perm._id);
+  for (const admin of adminRoles) {
+    const have = new Set(admin.permissions.map((id) => String(id)));
+    for (const perm of all) {
+      if (!have.has(String(perm._id))) admin.permissions.push(perm._id);
+    }
+    await admin.save();
   }
-  await admin.save();
 }
 
 export async function ensurePageRegistry() {
   const row = await Settings.findOne({ key: SETTINGS_KEYS.REGISTERED_PAGES });
-  let pages = Array.isArray(row?.value) ? row.value : [];
+  const raw = row?.value;
+  let pages = Array.isArray(raw) ? raw : [];
 
   if (!pages.length) {
     pages = INITIAL_PAGES.map((p) => ({ ...p }));
@@ -51,6 +54,7 @@ export async function ensurePageRegistry() {
       { $set: { value: pages } },
       { upsert: true }
     );
+    console.log(`[ensurePageRegistry] Seeded ${pages.length} default page(s) (registry was empty)`);
   }
 
   const legacy = await Settings.findOne({ key: SETTINGS_KEYS.CUSTOM_NAV_MODULES });
