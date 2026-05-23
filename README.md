@@ -40,12 +40,22 @@ Monorepo with an **Express + MongoDB** API and a **React (Vite) + Tailwind** adm
 
 ## Production
 
+**API (`demo.jadwalpro.com` or any VPS):** create `server/.env` with a non-empty `JWT_SECRET` (see `server/.env.example`). Without it, login returns an error about `secretOrPrivateKey`.
+
 ```bash
-cd client && npm run build
-cd server && NODE_ENV=production npm start
+cd server
+cp .env.example .env   # edit JWT_SECRET and MONGODB_URI
+npm install
+npm run seed           # first deploy only
+pm2 start ecosystem.config.cjs
+# or: NODE_ENV=production npm start
 ```
 
-Serve `client/dist` as static files from Express or a reverse proxy (nginx), and point `VITE_API_URL` / API host to your public API URL.
+```bash
+cd client && npm run build
+```
+
+Serve `client/dist` as static files from Express or a reverse proxy (nginx). Set `VITE_API_URL` to your public API base including `/api`, e.g. `https://demo.jadwalpro.com/api`, then rebuild the client.
 
 ## Permissions & sidebar
 

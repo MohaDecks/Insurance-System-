@@ -1,4 +1,4 @@
-import "dotenv/config";
+import { assertEnv } from "./config/env.js";
 import fs from "fs";
 import path from "path";
 import express from "express";
@@ -46,6 +46,8 @@ app.use("/api/settings", settingsRoutes);
 app.use("/api/notifications", notificationRoutes);
 
 app.use(errorHandler);
+
+assertEnv();
 
 const port = Number(process.env.PORT) || 5003;
 
