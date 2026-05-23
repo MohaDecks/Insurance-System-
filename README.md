@@ -32,6 +32,27 @@ Monorepo with an **Express + MongoDB** API and a **React (Vite) + Tailwind** adm
 
    Open `http://localhost:5173`. The Vite dev server proxies `/api` to `VITE_DEV_API_PROXY` (see `client/.env.example`; default matches `PORT` in `server/.env`).
 
+## Fresh database (seed)
+
+Wipes **all** data in the database named by `MONGODB_URI`, then inserts roles, permissions, page registry, catalog, and users.
+
+```bash
+cd server
+# point .env at the DB you want to reset (local or live)
+SEED_CONFIRM=yes npm run seed
+```
+
+Optional in `server/.env`:
+
+| Variable | Default |
+|----------|---------|
+| `SEED_ADMIN_EMAIL` | `admin@insurance.local` |
+| `SEED_ADMIN_PASSWORD` | `ChangeMe123!` |
+| `SEED_SUPER_EMAIL` | `deq@gmail.com` |
+| `SEED_SUPER_PASSWORD` | same as admin password |
+
+After seed: `npm run dev` or `pm2 restart`, then log in and change passwords on production.
+
 ## Production
 
 ```bash

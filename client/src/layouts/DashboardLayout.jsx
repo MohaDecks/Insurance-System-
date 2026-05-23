@@ -88,21 +88,32 @@ export function DashboardLayout() {
   const location = useLocation();
 
   const [navSections, setNavSections] = useState([]);
+  const [navError, setNavError] = useState("");
   const [openGroups, setOpenGroups] = useState(() => openGroupIdsForPath(window.location.pathname));
 
   useEffect(() => {
     if (!user) {
       setNavSections([]);
+      setNavError("");
       return;
     }
     let cancelled = false;
     (async () => {
       try {
+        setNavError("");
         await reload();
         const { data } = await api.get("/pages/nav");
-        if (!cancelled) setNavSections(data.data || []);
-      } catch {
-        if (!cancelled) setNavSections([]);
+        if (!cancelled) {
+          setNavSections(data.data || []);
+          if (!(data.data || []).length) {
+            setNavError("Menu still empty. Run MongoDB seed or: cd server && npm run repair:pages");
+          }
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setNavSections([]);
+          setNavError(err.message || "Could not load menu");
+        }
       }
     })();
     return () => {
@@ -136,10 +147,14 @@ export function DashboardLayout() {
         </div>
         <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
           {navSections.length === 0 ? (
-            <p className="px-2 text-xs text-slate-500">
-              Menu empty — check <code className="text-[10px]">registered_pages</code> and role permissions, then log
-              out and log in.
-            </p>
+            <div className="space-y-2 px-2 text-xs text-slate-500">
+              <p>Menu empty.</p>
+              {navError ? <p className="text-amber-700 dark:text-amber-300">{navError}</p> : null}
+              <p>
+                VPS: <code className="text-[10px]">npm run repair:pages</code> kadib{" "}
+                <strong>pm2 restart</strong>. Mongo: buuxi <code className="text-[10px]">registered_pages</code>.
+              </p>
+            </div>
           ) : null}
           {navSections.map((section) => {
             const items = section.items || [];

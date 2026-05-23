@@ -5,8 +5,8 @@ import { CRUD_ACTIONS, permissionKeysForResource } from "../constants/navModules
 import { pruneOrphanPermissions } from "../utils/pagePermissions.js";
 import { ensureSidebarSections } from "../utils/pageSections.js";
 
-/** First-time seed only (empty DB). After that, everything is managed via /pages. */
-const INITIAL_PAGES = [
+/** Default page registry (seed + empty-DB startup). */
+export const INITIAL_PAGES = [
   { resource: "dashboard", label: "Dashboard", path: "/", icon: "LayoutDashboard", section: "overview" },
   { resource: "customers", label: "Customers", path: "/customers", icon: "Users", section: "insurance" },
   { resource: "insurance_types", label: "Insurance types", path: "/insurance-types", icon: "Shield", section: "insurance" },

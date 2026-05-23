@@ -3,9 +3,10 @@ import { Role } from "../models/Role.js";
 import { Settings, SETTINGS_KEYS } from "../models/Settings.js";
 import { HttpError } from "../middleware/errorHandler.js";
 import { buildNavFromPages, filterNavSections, permissionKeysForResource } from "../constants/navModules.js";
-import { getRegisteredPages, getRegisteredPagesAll } from "../migrations/ensurePageRegistry.js";
+import { ensurePageRegistry, getRegisteredPages, getRegisteredPagesAll } from "../migrations/ensurePageRegistry.js";
 import { removePermissionsForResource } from "../utils/pagePermissions.js";
 import { getSidebarSections, saveSidebarSections } from "../utils/pageSections.js";
+import { resolvePermissionKeys } from "../utils/userPermissions.js";
 
 function slugId(raw, label = "id") {
   const s = String(raw || "")
@@ -49,16 +50,27 @@ async function grantPageToAdmin(page) {
 
 /** Pages the current user may open (for React routes). */
 function visiblePagesForUser(pages, user, permissionKeys) {
+  if (user?.superEngr) return pages;
   return pages.filter((p) => {
     if (p.resource === "pages" && !user?.superEngr) return false;
     return permissionKeys.has(`${p.resource}:read`);
   });
 }
 
+/** Re-seed registry when empty, then refresh permission keys (same request). */
+async function loadPagesWithRepair(user) {
+  let pages = await getRegisteredPages();
+  if (!pages.length) {
+    await ensurePageRegistry();
+    pages = await getRegisteredPages();
+  }
+  const keys = await resolvePermissionKeys(user);
+  return { pages, keys };
+}
+
 export async function listMyPages(req, res, next) {
   try {
-    const keys = req.permissionKeys || new Set();
-    const pages = await getRegisteredPages();
+    const { pages, keys } = await loadPagesWithRepair(req.user);
     const data = visiblePagesForUser(pages, req.user, keys);
     res.json({ success: true, data });
   } catch (e) {
@@ -68,11 +80,13 @@ export async function listMyPages(req, res, next) {
 
 export async function getNav(req, res, next) {
   try {
-    const keys = req.permissionKeys || new Set();
-    const pages = await getRegisteredPages();
+    const { pages, keys } = await loadPagesWithRepair(req.user);
     const visible = visiblePagesForUser(pages, req.user, keys);
     const sectionDefs = await getSidebarSections();
-    const sections = filterNavSections(buildNavFromPages(visible, sectionDefs), keys);
+    let sections = buildNavFromPages(visible, sectionDefs);
+    if (!req.user?.superEngr) {
+      sections = filterNavSections(sections, keys);
+    }
     res.json({ success: true, data: sections });
   } catch (e) {
     next(e);
