@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true, minlength: 6, select: false },
     role: { type: mongoose.Schema.Types.ObjectId, ref: "Role", required: true },
     isActive: { type: Boolean, default: true },
+    /** Page registry (/pages). Set only in MongoDB — not via API/UI */
+    superEngr: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

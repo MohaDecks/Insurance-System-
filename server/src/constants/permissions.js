@@ -1,37 +1,4 @@
-/** Canonical permission keys used in RBAC */
-export const PERMISSION_KEYS = [
-  "dashboard:read",
-  "users:create",
-  "users:read",
-  "users:update",
-  "users:delete",
-  "roles:read",
-  "roles:create",
-  "roles:update",
-  "roles:delete",
-  "customers:create",
-  "customers:read",
-  "customers:update",
-  "customers:delete",
-  "insurance_types:create",
-  "insurance_types:read",
-  "insurance_types:update",
-  "insurance_types:delete",
-  "vehicle_types:create",
-  "vehicle_types:read",
-  "vehicle_types:update",
-  "vehicle_types:delete",
-  "currencies:create",
-  "currencies:read",
-  "currencies:update",
-  "currencies:delete",
-  "payments:create",
-  "payments:read",
-  "payments:update",
-  "payments:delete",
-  "reports:read",
-  "reports:export",
-  "settings:read",
-  "settings:update",
-  "notifications:send",
-];
+/**
+ * Permissions are not listed here — they are created when you register a page
+ * (System → Page registry). Keys follow: {resource}:read|create|update|delete
+ */

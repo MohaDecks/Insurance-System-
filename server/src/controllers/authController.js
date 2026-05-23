@@ -14,6 +14,7 @@ function userPayload(user) {
       ? { id: role._id, name: role.name, permissions }
       : null,
     permissionKeys: permissions,
+    superEngr: !!user.superEngr,
   };
 }
 

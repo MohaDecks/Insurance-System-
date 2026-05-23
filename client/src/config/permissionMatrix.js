@@ -5,6 +5,7 @@ export const RESOURCE_LABELS = {
   roles: "Roles",
   customers: "Customers",
   insurance_types: "Insurance types",
+  vehicle_types: "Vehicle types",
   currencies: "Currencies",
   payments: "Payments",
   reports: "Reports",

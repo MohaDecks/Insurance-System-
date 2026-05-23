@@ -95,6 +95,10 @@ export default function CustomersPage() {
 
   const save = async () => {
     try {
+      if (!form.vehicleTypeId || !form.insuranceTypeId || !form.currencyId) {
+        toast.error("Add at least one Vehicle type, Insurance type, and Currency first (Insurance menu).");
+        return;
+      }
       if (modal.mode === "create") {
         const { data } = await api.post("/customers", {
           fullName: form.fullName,
@@ -202,9 +206,7 @@ export default function CustomersPage() {
           <p className="text-sm text-slate-500">Registration, vehicle, and daily status</p>
         </div>
         {can("customers:create") ? (
-          <Button onClick={openCreate} disabled={!types.length || !currencies.length || !vehicleTypes.length}>
-            Add customer
-          </Button>
+          <Button onClick={openCreate}>Add customer</Button>
         ) : null}
       </div>
 

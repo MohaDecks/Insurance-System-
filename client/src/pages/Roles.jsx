@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { api } from "../api/client.js";
-import { useCan } from "../context/AuthContext.jsx";
+import { useAuth, useCan } from "../context/AuthContext.jsx";
 import { DataTable } from "../components/DataTable.jsx";
 import { Modal } from "../components/Modal.jsx";
 import { Button } from "../components/Button.jsx";
@@ -14,6 +14,7 @@ import {
 
 export default function RolesPage() {
   const can = useCan();
+  const { user, reload } = useAuth();
   const [roles, setRoles] = useState([]);
   const [perms, setPerms] = useState([]);
   const [modal, setModal] = useState({ open: false, mode: "create", record: null });
@@ -67,6 +68,10 @@ export default function RolesPage() {
           permissionIds,
         });
         toast.success("Role updated");
+        if (String(modal.record._id) === String(user?.role?.id)) {
+          await reload();
+          toast.success("Your menu was refreshed — check the sidebar.");
+        }
       }
       setModal({ open: false, mode: "create", record: null });
       await load();

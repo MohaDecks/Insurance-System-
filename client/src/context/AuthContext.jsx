@@ -51,6 +51,7 @@ export function AuthProvider({ children }) {
       logout,
       reload: loadMe,
       permissionKeys,
+      isSuperEngr: !!user?.superEngr,
     }),
     [user, loading, loadMe, permissionKeys]
   );

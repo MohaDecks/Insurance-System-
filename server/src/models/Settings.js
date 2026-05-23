@@ -15,4 +15,7 @@ export const SETTINGS_KEYS = {
   NOTIFICATIONS: "notifications",
   PAYMENT_API: "payment_api",
   SMS: "sms_provider",
+  CUSTOM_NAV_MODULES: "custom_nav_modules",
+  REGISTERED_PAGES: "registered_pages",
+  SIDEBAR_SECTIONS: "sidebar_sections",
 };

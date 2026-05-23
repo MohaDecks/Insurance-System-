@@ -103,6 +103,11 @@ export default function UsersPage() {
       render: (u) => (u.isActive ? "Yes" : "No"),
     },
     {
+      key: "superEngr",
+      label: "Super engr",
+      render: (u) => (u.superEngr ? "Yes (DB)" : "—"),
+    },
+    {
       key: "actions",
       label: "",
       render: (u) => (
@@ -183,6 +188,10 @@ export default function UsersPage() {
             Active
           </label>
         </div>
+        <p className="text-xs text-slate-500">
+          Super engineer (/pages) is set in MongoDB only:{" "}
+          <code className="text-[11px]">db.users.updateOne(&#123; email: &quot;…&quot; &#125;, &#123; $set: &#123; superEngr: true &#125; &#125;)</code>
+        </p>
       </Modal>
 
       <Modal

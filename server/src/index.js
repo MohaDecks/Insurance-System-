@@ -7,6 +7,8 @@ import morgan from "morgan";
 import { connectDb } from "./config/db.js";
 import { UPLOAD_ROOT } from "./config/uploads.js";
 import { ensureVehicleTypesAndMigrateCustomers } from "./migrations/ensureVehicleTypes.js";
+import { ensurePageRegistry } from "./migrations/ensurePageRegistry.js";
+import { ensureBaselineCatalog } from "./migrations/ensureBaselineCatalog.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 import authRoutes from "./routes/authRoutes.js";
@@ -21,6 +23,7 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import moduleRoutes from "./routes/moduleRoutes.js";
 
 const app = express();
 app.use(cors({ origin: true, credentials: true }));
@@ -44,6 +47,8 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/pages", moduleRoutes);
+app.use("/api/modules", moduleRoutes);
 
 app.use(errorHandler);
 
@@ -51,7 +56,9 @@ const port = Number(process.env.PORT) || 5003;
 
 connectDb()
   .then(async () => {
+    await ensurePageRegistry();
     await ensureVehicleTypesAndMigrateCustomers();
+    await ensureBaselineCatalog();
     app.listen(port, () => console.log(`API http://localhost:${port}`));
   })
   .catch((err) => {

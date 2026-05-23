@@ -3,12 +3,8 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import * as Icons from "lucide-react";
 import { useAuth } from "../context/AuthContext.jsx";
-import {
-  NAV_SECTIONS,
-  filterNavItems,
-  navItemOrDescendantActive,
-  openGroupIdsForPath,
-} from "../config/nav.js";
+import { filterNavItems, navItemOrDescendantActive, openGroupIdsForPath } from "../config/nav.js";
+import { api } from "../api/client.js";
 import { Button } from "../components/Button.jsx";
 
 function NavIcon({ name }) {
@@ -70,7 +66,7 @@ function NavNode({ item, depth, openGroups, toggleGroup, pathname }) {
       </button>
       {isOpen ? (
         <div className="space-y-1">
-          {item.children.map((ch) => (
+          {(item.children || []).map((ch) => (
             <NavNode
               key={ch.id || ch.to || ch.label}
               item={ch}
@@ -91,7 +87,19 @@ export function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [navSections, setNavSections] = useState([]);
   const [openGroups, setOpenGroups] = useState(() => openGroupIdsForPath(window.location.pathname));
+
+  useEffect(() => {
+    if (!user) {
+      setNavSections([]);
+      return;
+    }
+    api
+      .get("/pages/nav")
+      .then(({ data }) => setNavSections(data.data || []))
+      .catch(() => setNavSections([]));
+  }, [user?.id]);
 
   useEffect(() => {
     setOpenGroups((prev) => {
@@ -118,7 +126,7 @@ export function DashboardLayout() {
           <div className="text-lg font-bold text-slate-900 dark:text-white">Management</div>
         </div>
         <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
-          {NAV_SECTIONS.map((section) => {
+          {navSections.map((section) => {
             const items = filterNavItems(section.items, permissionKeys);
             if (!items.length) return null;
             return (
