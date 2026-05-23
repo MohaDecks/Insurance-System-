@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
-import { getJwtSecret } from "../config/env.js";
+import { Role } from "../models/Role.js";
+import { Permission } from "../models/Permission.js";
 import { HttpError } from "./errorHandler.js";
 
 export async function authenticate(req, res, next) {
@@ -10,7 +11,7 @@ export async function authenticate(req, res, next) {
       throw new HttpError(401, "Authentication required");
     }
     const token = header.slice(7);
-    const payload = jwt.verify(token, getJwtSecret());
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(payload.sub).populate({
       path: "role",
       populate: { path: "permissions", model: "Permission" },
@@ -33,7 +34,7 @@ export async function authenticate(req, res, next) {
 }
 
 export function signToken(userId) {
-  return jwt.sign({ sub: userId }, getJwtSecret(), {
+  return jwt.sign({ sub: userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   });
 }
