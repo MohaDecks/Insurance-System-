@@ -1,4 +1,4 @@
-/** Canonical permission keys used in seed + RBAC */
+/** Canonical permission keys used in RBAC */
 export const PERMISSION_KEYS = [
   "dashboard:read",
   "users:create",

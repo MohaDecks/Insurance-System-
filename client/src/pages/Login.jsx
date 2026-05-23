@@ -52,9 +52,6 @@ export default function LoginPage() {
             {busy ? "Signing in…" : "Sign in"}
           </Button>
         </form>
-        <p className="mt-6 text-center text-xs text-slate-400">
-          Default seed: admin@insurance.local / Admin123!
-        </p>
       </div>
     </div>
   );

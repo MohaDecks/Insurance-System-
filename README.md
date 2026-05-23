@@ -16,7 +16,6 @@ Monorepo with an **Express + MongoDB** API and a **React (Vite) + Tailwind** adm
    cp .env.example .env
    # edit MONGODB_URI and JWT_SECRET
    npm install
-   npm run seed
    npm run dev
    ```
 
@@ -32,11 +31,6 @@ Monorepo with an **Express + MongoDB** API and a **React (Vite) + Tailwind** adm
    ```
 
    Open `http://localhost:5173`. The Vite dev server proxies `/api` to `VITE_DEV_API_PROXY` (see `client/.env.example`; default matches `PORT` in `server/.env`).
-
-### Seed logins
-
-- **Admin:** `admin@insurance.local` / `Admin123!`
-- **Agent (limited permissions):** `agent@insurance.local` / `Agent123!`
 
 ## Production
 
